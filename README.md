@@ -1,86 +1,129 @@
-# Nido — Agente local para Lucía
+# localdoc-agent — verifiable citations, entirely on your laptop
 
-Nido es un agente local y privado que responde preguntas sobre los contratos y facturas de Lucía, con cita exacta del documento. Corre 100 % en su Mac: no manda datos a ninguna nube.
+A local-first AI agent that answers questions about contracts and invoices, with **citations that are verified in code**, not trusted from the model.
 
-## Qué hace
+Every answer carries a `chunk_id` and a literal quote. The app checks that the quote is a substring of the retrieved chunk. If it is not, the answer is refused. No network, no API key, no hallucinated page numbers.
 
-- Ingesta PDFs (con texto seleccionable) y Markdown.
-- Chunking por cláusula, con metadata de documento, página y sección.
-- Búsqueda híbrida BM25 + vectores (BGE-M3) + RRF.
-- Respuesta con citas verificables (substring exacto).
-- Genera recordatorios de pago en Markdown para Obsidian.
-- Botón "Delete everything" que borra índice, embeddings, logs y borradores.
+> **Origin:** built as a design exercise for the [DEV.to Hacktoberfest 2026 — Weekend Challenge: Build for a Friend](https://dev.to/challenges/hacktoberfest-weekend-2026-10-01). The challenge asked for something that solves a real problem for one specific person, built with open-source AI.
+>
+> The official window closed on **October 5, 2026**; this build started afterwards, so it is **not a submission**. The case study (“Lucía, a freelance photographer”) is a *persona*, not a real person — it exists to give the design a concrete constraint, not to claim a testimonial.
 
-## Requisitos
+---
 
-- macOS con Apple Silicon.
-- [Ollama](https://ollama.com/) instalado y corriendo.
-- `uv` (`brew install uv`).
-- Modelos:
+## The idea
+
+Ask a question about a folder of contracts. Get:
+
+- an answer;
+- the exact clause it came from;
+- the document and page;
+- a refusal when the evidence is not there.
+
+The hard part is not retrieval. The hard part is **not lying**.
+
+## How the citations stay honest
+
+```python
+valid, invalid = verify_citations(citations, chunks_by_id)
+```
+
+A citation is valid only if its `quote` is a substring of the chunk after whitespace normalization. If the model invents a quote, it fails, the model is asked once more, and if it fails again the response becomes a refusal.
+
+This is not another LLM checking the first one. It is string containment, and it can be reproduced by anyone with the database.
+
+## What it runs on
+
+| Layer | Choice | Why |
+|---|---|---|
+| Runtime | Ollama | Local inference, OpenAI-compatible API |
+| Model | `gemma4:12b-mlx` (7.7 GB) | 18/18 on the eval; the smaller models were not accurate enough (see below) |
+| Embeddings | `bge-m3` (1024d) | Multilingual; the documents are in Spanish |
+| Store | SQLite + FTS5 + `sqlite-vec` (`vec0`) | One file; hybrid search; metadata for citations |
+| Retrieval | BM25 + KNN + RRF | Handles both concepts (“saldo pendiente”) and exact strings (“$15.000,00”) |
+| LLM API | `ollama.embed` / `ollama.chat` | The CLI has no `embed` subcommand — a real bug found during the build |
+| Verification | Substring containment | Deterministic; no second model |
+| Arithmetic | `calc.py` (deterministic) | Because a 12B model cannot add two numbers reliably |
+| UI | FastAPI + HTMX | One screen, no build step |
+
+## Quickstart
 
 ```bash
+# 1. Models
 ollama pull gemma4:12b-mlx
 ollama pull bge-m3
-```
 
-## Instalación
-
-```bash
-cd agente-local-amigo
+# 2. Install and index the demo corpus
 uv sync
+uv run python -m src.agent.demo_ingest     # 3 documents, 13 chunks
+
+# 3. Run
+uv run uvicorn src.agent.ui:app --port 8000
+# open http://127.0.0.1:8000
+
+# 4. Tests
+uv run pytest -q                            # 10 tests
 ```
 
-## Uso
+The UI supports drag-and-drop ingestion, chat with citations, a sources panel, a Markdown draft for an invoice reminder, and a **Delete everything** button.
 
-Doble clic en `run.command` o:
+## The eval (18 questions)
 
-```bash
-make run
+| Model | Accuracy | P50 latency | Notes |
+|---|---:|---:|---|
+| `gemma4:12b-mlx` | **18/18 (100 %)** | 49.5 s | Chosen |
+| `gemma3:4b` | 4/18 (22 %) | 6.8 s | Fast, wrong on dates and amounts |
+| `qwen3.5:9b` | did not complete | >90 s | Context 262k kept the model resident; not viable here |
+
+Questions are split into easy, multi-hop, no-answer, and numeric. The scorer is in `eval/rescore.py`; raw results are in `eval/results.json`.
+
+**The 18/18 is not purely the model.** Question 7 (sum of two contract totals) is answered by a deterministic calculator (`src/agent/calc.py`) because a 12B model does not do arithmetic reliably. That is the design: the LLM retrieves and composes; code does the math.
+
+## What went wrong (and what changed because of it)
+
+This section exists because the first version was not good, and the failures are the most useful part of the repository.
+
+1. **Mock embeddings passed the tests.** The first implementation called `ollama embed` as a CLI command, which does not exist. Every embedding silently fell back to a 3-dimension mock vector, and the tests were green. Fixed by using the Python API (`ollama.embed`, 1024 dims) and removing the silent fallback: if embeddings fail, the ingest fails loudly.
+2. **`sqlite-vec` was never actually loaded.** `chunks_vec` was quietly created as a regular table, so vector search ran on a brute-force path that returned garbage. Fixed by calling `sqlite_vec.load(conn)` behind `enable_load_extension(True)` and asserting the schema is a `vec0` virtual table.
+3. **Subagents reported files they never wrote.** Three times a delegate claimed to have created a module that did not exist on disk. The fix was procedural: every report is verified against the filesystem and the test suite before it is accepted.
+4. **A 4B model is not a small version of a 12B model.** It is 4.5× less accurate on this task. The speed/accuracy trade-off was measured, not assumed, and the data is in the repo.
+5. **A 9B model can be slower than a 12B one.** `qwen3.5:9b` stayed resident with a 262k context and took over 90 s per answer. Bigger is not always slower; context settings matter more than parameter count.
+6. **A 12B model will confidently answer a sum wrong.** Hence the calculator.
+7. **FTS5 treats a question mark as syntax.** Natural questions crashed the retriever until the query was tokenized and rebuilt.
+
+## Limitations
+
+- **PDFs must have selectable text.** Scanned documents are rejected with an explicit message; OCR is out of scope.
+- **One language per corpus.** The embeddings are multilingual, but the prompt and the demo are in Spanish.
+- **~50 s per answer** on an Apple Silicon Mac mini with a 12B model. Correct, not fast.
+- **The eval is small and authored by the same person who wrote the system.** It is honest about the 18 questions it asks, not a benchmark.
+- **No multi-user, no server, no sync.** It is a local tool.
+
+## Repository layout
+
+```
+src/agent/
+  db.py          SQLite schema, FTS5, sqlite-vec
+  ingest.py      PDF/Markdown extraction + clause chunking
+  retrieve.py    BM25 + KNN + RRF hybrid search
+  agent.py       LLM call, JSON contract, retry on invalid citations
+  verify.py      deterministic substring verification
+  calc.py        deterministic arithmetic for contract totals
+  ui.py          FastAPI routes
+eval/
+  questions.yaml 18 questions
+  run_eval.py    runner with latency
+  rescore.py     tolerant re-scoring (documented)
+docs/
+  ARCHITECTURE.md  schema, chunking, retrieval, security
+  decisions.md     ADR-001 to ADR-007
 ```
 
-Abrí http://127.0.0.1:8000.
+## Origin and credits
 
-## Demo con datos sintéticos
+- **Challenge:** [DEV.to Hacktoberfest 2026, Weekend Challenge — Build for a Friend](https://dev.to/challenges/hacktoberfest-weekend-2026-10-01).
+- **Design context:** a full audit of the original plan, including the eligibility gate (the challenge had closed) and the decision to pivot from a submission to a public project (`docs/` in the author's workspace; summarized here).
+- **Models:** [Gemma 4](https://ai.google.dev/gemma) and [BGE-M3](https://huggingface.co/BAAI/bge-m3). Model weights keep their own licences.
 
-```bash
-make demo
-```
+## License
 
-Esto ingesta `data/demo/` y corre una búsqueda de ejemplo.
-
-## Arquitectura
-
-```
-[PDFs/Markdown] -> [Ingesta] -> [Chunks por cláusula]
-    -> [SQLite: FTS5 + sqlite-vec]
-    -> [Retrieval híbrido: BM25 + vector + RRF]
-    -> [Agente: Ollama + Gemma 4 12B] -> [JSON con citas]
-    -> [Verificación substring] -> [UI FastAPI + HTMX]
-    -> [Borrador Markdown]
-```
-
-Decisiones: `docs/decisions.md`. Arquitectura detallada: `docs/ARCHITECTURE.md`.
-
-## Privacidad
-
-- No hay requests salientes en el camino crítico.
-- El modelo y los embeddings corren locales.
-- `data/private/` está en `.gitignore`.
-- "Delete everything" borra `data/index.db` y `output/`.
-
-## Limitaciones
-
-- PDFs escaneados (sin texto seleccionable): fuera de alcance. La app avisa.
-- Modelo local: ~30-60 s por respuesta en Mac mini con `gemma4:12b-mlx`. Para una laptop más chica, usar `qwen3.5:9b` o `gemma4:4b`.
-- Una sola usuaria, un solo corpus.
-
-## Handoff para Lucía
-
-1. Abrí `run.command` (doble clic).
-2. Esperá que el navegador abra `http://127.0.0.1:8000`.
-3. Arrastrá tus contratos y facturas a la zona de documentos.
-4. Preguntá: "¿Qué clientes me deben plata?".
-5. Si querés un recordatorio, pedilo y guardalo en Obsidian.
-6. Para borrar todo, usá "Delete everything".
-
-Si algo falla, revisá que Ollama esté abierto y que los modelos estén descargados.
+MIT — see `LICENSE`. Model weights keep their own licences.
