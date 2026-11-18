@@ -1,0 +1,22 @@
+<article class="msg msg-bot">
+  <div class="msg-head">
+    <span class="avatar" aria-hidden="true">◉</span>
+    <span class="msg-author">Nido</span>
+    {% if result.citations %}
+    <span class="chip chip-ok chip-dot">{{ result.citations|length }} citas verificadas</span>
+    {% endif %}
+  </div>
+  <div class="msg-body">
+    <p>{{ result.answer }}</p>
+    {% if result.citations %}
+    <p class="citations">
+      {% for c in result.citations %}
+      <a class="cite" hx-get="/sources/{{ c.chunk_id }}" hx-target="#sources-list" hx-swap="innerHTML">{{ loop.index }}</a>
+      {% endfor %}
+    </p>
+    {% endif %}
+  </div>
+</article>
+<div id="sources-list" hx-swap-oob="innerHTML">
+  {% include "partials/sources.html" %}
+</div>

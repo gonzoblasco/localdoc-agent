@@ -1,0 +1,7 @@
+data/private/
+output/
+.env
+*.db
+__pycache__/
+.venv/
+ui/*.png

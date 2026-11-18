@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Nido — archivo privado de Lucía</title>
+<meta name="description" content="Mockup de la pantalla única: contratos y facturas consultables con cita exacta, sin salir de la Mac.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="skip-link" href="#chat-log">Saltar al chat</a>
+
+<!-- Sprite de iconos (sin assets externos) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-lock" viewBox="0 0 24 24">
+    <rect x="4" y="10.5" width="16" height="10" rx="2.5"/>
+    <path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/>
+    <path d="M12 14.6v2.2"/>
+  </symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24">
+    <path d="M14 3.5H7.5A2 2 0 0 0 5.5 5.5v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V8z"/>
+    <path d="M14 3.5V8h4"/>
+  </symbol>
+  <symbol id="i-quote" viewBox="0 0 24 24">
+    <path d="M9.5 6.5C7 7.6 5.5 9.7 5.5 12.4V17h5v-5h-3c0-1.8.8-3 2.4-3.7z"/>
+    <path d="M18 6.5c-2.5 1.1-4 3.2-4 5.9V17h5v-5h-3c0-1.8.8-3 2.4-3.7z"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 24 24">
+    <path d="M4.5 12.6l4.6 4.4L19.5 6.8"/>
+  </symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24">
+    <path d="M4.5 7h15"/>
+    <path d="M9.5 7V5.2c0-.7.5-1.2 1.2-1.2h2.6c.7 0 1.2.5 1.2 1.2V7"/>
+    <path d="M6.5 7l.9 12.1c0 .8.7 1.4 1.5 1.4h6.2c.8 0 1.5-.6 1.5-1.4L17.5 7"/>
+    <path d="M10.3 11v5.6M13.7 11v5.6"/>
+  </symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24">
+    <path d="M6.5 9.5l5.5 5.5 5.5-5.5"/>
+  </symbol>
+  <symbol id="i-send" viewBox="0 0 24 24">
+    <path d="M4.5 12h13"/>
+    <path d="M12.5 6.5L18 12l-5.5 5.5"/>
+  </symbol>
+  <symbol id="i-vault" viewBox="0 0 24 24">
+    <rect x="3.5" y="4.5" width="17" height="15" rx="2"/>
+    <circle cx="12" cy="12" r="3.4"/>
+    <path d="M12 8.6V7.2M12 16.8v-1.4M8.6 12H7.2M16.8 12h-1.4"/>
+  </symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24">
+    <path d="M12 16.5V5.5"/>
+    <path d="M7.5 10L12 5.5 16.5 10"/>
+    <path d="M5 17.5v1.2a1.8 1.8 0 0 0 1.8 1.8h10.4a1.8 1.8 0 0 0 1.8-1.8v-1.2"/>
+  </symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24">
+    <path d="M12 4.5l8.5 15h-17z"/>
+    <path d="M12 9.5v4.6M12 16.9v.1"/>
+  </symbol>
+  <symbol id="i-lens" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="8.6"/>
+    <circle cx="12" cy="12" r="4.2"/>
+    <path d="M12 3.4l3.6 4.3M20.1 15.3l-5.4 1.2M6.9 19.5l-.1-5.6"/>
+  </symbol>
+</svg>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">
+      <svg class="ico" width="20" height="20"><use href="#i-lens"/></svg>
+    </span>
+    <span class="brand-text">
+      <span class="brand-name">Nido</span>
+      <span class="brand-sub">Archivo privado de Lucía</span>
+    </span>
+  </div>
+
+  <div class="topbar-right">
+    <span class="privacy-badge" title="Todo corre en esta Mac. Nada se envía a internet.">
+      <svg class="ico" width="13" height="13" aria-hidden="true"><use href="#i-lock"/></svg>
+      Local. Private. Yours.
+    </span>
+    <span class="net-counter" title="Salidas de red desde que abriste la app">
+      <span class="net-dot" aria-hidden="true"></span>
+      Network requests: <strong>0</strong>
+    </span>
+  </div>
+</header>
+
+<div class="shell">
+  <main class="app">
+
+    <!-- ============================= Sidebar ============================= -->
+    <aside class="panel sidebar" aria-label="Documentos y estado del sistema">
+      <div class="panel-head">
+        <h2 class="panel-title">Documentos</h2>
+        <span class="panel-count">5</span>
+      </div>
+
+      <div class="sidebar-inner">
+
+        <form class="dropzone" id="ingest-form" hx-post="/ingest" hx-target="#doc-list" hx-swap="beforeend"
+              hx-encoding="multipart/form-data" hx-indicator="#ingest-progress">
+          <span class="dropzone-icon" aria-hidden="true">
+            <svg class="ico" width="17" height="17"><use href="#i-upload"/></svg>
+          </span>
+          <label class="dropzone-title" for="file-input">Arrastrá tus contratos y facturas</label>
+          <span class="dropzone-hint">o hacé clic para elegir archivos</span>
+          <span class="dropzone-format">PDF · Markdown</span>
+          <input class="sr-only" id="file-input" type="file" name="files" multiple
+                 accept=".pdf,.md,.markdown,.txt"
+                 hx-post="/ingest" hx-target="#doc-list" hx-swap="beforeend"
+                 hx-encoding="multipart/form-data" hx-indicator="#ingest-progress">
+          <div class="ingest-progress htmx-indicator" id="ingest-progress" role="status">
+            <span class="spinner" aria-hidden="true"></span>
+            Leyendo e indexando…
+          </div>
+        </form>
+
+        <section aria-labelledby="doclist-title">
+          <div class="doc-group-head">
+            <h3 class="doc-group-title" id="doclist-title">En el índice</h3>
+            <span class="panel-count">148 fragmentos</span>
+          </div>
+
+          <ul class="doc-list" id="doc-list">
+            <li class="doc">
+              <span class="doc-icon" aria-hidden="true"><svg class="ico" width="16" height="16"><use href="#i-doc"/></svg></span>
+              <span class="doc-body">
+                <span class="doc-name">contrato-boda-marisol-tomas.pdf</span>
+                <span class="doc-meta-row">
+                  <span class="doc-meta">PDF · 6 págs</span>
+                  <span class="chip chip-ok">Indexado</span>
+                </span>
+              </span>
+            </li>
+            <li class="doc">
+              <span class="doc-icon" aria-hidden="true"><svg class="ico" width="16" height="16"><use href="#i-doc"/></svg></span>
+              <span class="doc-body">
+                <span class="doc-name">factura-2026-014.pdf</span>
+                <span class="doc-meta-row">
+                  <span class="doc-meta">PDF · 1 pág</span>
+                  <span class="chip chip-warn">Vencida</span>
+                </span>
+              </span>
+            </li>
+            <li class="doc">
+              <span class="doc-icon" aria-hidden="true"><svg class="ico" width="16" height="16"><use href="#i-doc"/></svg></span>
+              <span class="doc-body">
+                <span class="doc-name">contrato-estudio-lumen.pdf</span>
+                <span class="doc-meta-row">
+                  <span class="doc-meta">PDF · 4 págs</span>
+                  <span class="chip chip-ok">Indexado</span>
+                </span>
+              </span>
+            </li>
+            <li class="doc">
+              <span class="doc-icon" aria-hidden="true"><svg class="ico" width="16" height="16"><use href="#i-doc"/></svg></span>
+              <span class="doc-body">
+                <span class="doc-name">factura-2026-021.pdf</span>
+                <span class="doc-meta-row">
+                  <span class="doc-meta">PDF · 1 pág</span>
+                  <span class="chip chip-ok">Indexado</span>
+                </span>
+              </span>
+            </li>
+            <li class="doc">
+              <span class="doc-icon" aria-hidden="true"><svg class="ico" width="16" height="16"><use href="#i-doc"/></svg></span>
+              <span class="doc-body">
+                <span class="doc-name">notas-clientes.md</span>
+                <span class="doc-meta-row">
+                  <span class="doc-meta">MD · 3 KB</span>
+                  <span class="chip chip-neutral">Texto</span>
+                </span>
+              </span>
+            </li>
+          </ul>
+        </section>
+
+        <div class="health" id="health" hx-get="/health" hx-trigger="every 30s" hx-swap="outerHTML">
+          <p class="health-title">Estado</p>
+          <div class="health-row">
+            <span class="dot dot-ok" aria-hidden="true"></span>
+            <span class="health-label">Ollama corriendo</span>
+            <span class="health-detail">gemma4:12b</span>
+          </div>
+          <div class="health-row">
+            <span class="dot dot-ok" aria-hidden="true"></span>
+            <span class="health-label">Índice listo</span>
+            <span class="health-detail">5 docs · 148</span>
+          </div>
+        </div>
+
+        <div class="sidebar-foot">
+          <button class="btn-delete" type="button" commandfor="delete-dialog" command="show-modal">
+            <svg class="ico" width="13" height="13" aria-hidden="true"><use href="#i-trash"/></svg>
+            Delete everything
+          </button>
+          <p class="microcopy">Todo ocurre en esta Mac.<br>Nada sale a internet.</p>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- ============================== Chat =============================== -->
+    <section class="panel chat" aria-labelledby="chat-title">
+      <div class="chat-head">
+        <h2 id="chat-title">Preguntá sobre tus documentos</h2>
+        <p>Respuestas con cita exacta del contrato o la factura. Si no está escrito, te lo digo.</p>
+      </div>
+
+      <div class="chat-log" id="chat-log" role="log" aria-live="polite" aria-relevant="additions text" tabindex="-1">
+
+        <article class="msg msg-user">
+          <p>¿Qué clientes me deben plata?</p>
+          <p class="msg-time">09:41</p>
+        </article>
+
+        <article class="msg msg-bot">
+          <div class="msg-head">
+            <span class="avatar" aria-hidden="true">
+              <svg class="ico" width="12" height="12"><use href="#i-lens"/></svg>
+            </span>
+            <span class="msg-author">Nido</span>
+            <span class="msg-time">09:41</span>
+            <span class="chip chip-ok chip-dot">3 citas verificadas</span>
+          </div>
+
+          <div class="msg-body">
+            <p>Tenés dos pagos pendientes, por un total de <strong>$770.000</strong>.</p>
+
+            <ul class="answer-list">
+              <li>
+                <strong>Marisol Ruiz</strong> debe <strong>$480.000</strong> por el saldo de la boda del
+                12 de octubre.<a class="cite" href="#src-1" hx-get="/sources/128" hx-target="#src-detail-1"
+                hx-swap="innerHTML" aria-label="Ver fuente 1: factura 2026-014">1</a>
+                El pago tenía que entrar el 10 de noviembre.<a class="cite" href="#src-2" hx-get="/sources/94"
+                hx-target="#src-detail-2" hx-swap="innerHTML" aria-label="Ver fuente 2: cláusula 4.2 del contrato">2</a>
+                Está ocho días atrasado.
+              </li>
+              <li>
+                <strong>Estudio Lumen</strong> debe <strong>$290.000</strong> por la cobertura del evento
+                del 4 de septiembre.<a class="cite" href="#src-3" hx-get="/sources/141" hx-target="#src-detail-3"
+                hx-swap="innerHTML" aria-label="Ver fuente 3: factura 2026-021">3</a>
+                La factura vence el viernes 20 de noviembre: quedan dos días.
+              </li>
+            </ul>
+
+            <p>Si querés, te preparo el recordatorio para Marisol y lo guardás en Obsidian.</p>
+          </div>
+
+          <div class="msg-actions">
+            <button class="btn btn-primary btn-sm" type="button"
+                    hx-post="/draft" hx-vals='{"client":"marisol-ruiz","mode":"preview"}'
+                    hx-target="#draft-panel" hx-swap="innerHTML" hx-indicator="#draft-indicator">
+              <svg class="ico" width="13" height="13" aria-hidden="true"><use href="#i-quote"/></svg>
+              Preparar recordatorio
+            </button>
+            <button class="btn btn-ghost btn-sm" type="button"
+                    hx-post="/ask" hx-vals='{"q":"¿Cuánto me debe Estudio Lumen y cuándo vence?"}'
+                    hx-target="#chat-log" hx-swap="beforeend">
+              Ver el detalle de Lumen
+            </button>
+          </div>
+        </article>
+
+      </div>
+
+      <div class="composer-area">
+        <div class="suggestions" aria-label="Preguntas de ejemplo">
+          <button class="suggestion" type="button"
+                  hx-post="/ask" hx-vals='{"q":"¿Cuándo vence la factura de Estudio Lumen?"}'
+                  hx-target="#chat-log" hx-swap="beforeend">
+            ¿Cuándo vence la factura de Estudio Lumen?
+          </button>
+          <button class="suggestion" type="button"
+                  hx-post="/ask" hx-vals='{"q":"¿Qué dice el contrato si el cliente cancela con poca anticipación?"}'
+                  hx-target="#chat-log" hx-swap="beforeend">
+            ¿Qué pasa si cancelan con poca anticipación?
+          </button>
+          <button class="suggestion" type="button"
+                  hx-post="/ask" hx-vals='{"q":"¿Cuánto cobré en total este año?"}'
+                  hx-target="#chat-log" hx-swap="beforeend">
+            ¿Cuánto cobré en total este año?
+          </button>
+        </div>
+
+        <form class="composer" hx-post="/ask" hx-target="#chat-log" hx-swap="beforeend"
+              hx-indicator="#ask-indicator">
+          <label class="sr-only" for="q">Tu pregunta</label>
+          <textarea id="q" name="q" rows="1"
+                    placeholder="Escribí tu pregunta, como se la harías a alguien…"></textarea>
+          <div class="composer-foot">
+            <span class="composer-hint">Sin internet. Enter para enviar.</span>
+            <span class="spinner htmx-indicator" id="ask-indicator" aria-hidden="true"></span>
+            <button class="btn btn-primary" type="submit">
+              Preguntar
+              <svg class="ico" width="14" height="14" aria-hidden="true"><use href="#i-send"/></svg>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========================= Rail: fuentes + borrador ========================= -->
+    <div class="rail">
+
+      <section class="panel sources" aria-labelledby="sources-title">
+        <div class="panel-head">
+          <h2 class="panel-title" id="sources-title">Fuentes</h2>
+          <span class="panel-count">3 citas</span>
+        </div>
+
+        <div class="sources-body" id="sources-list">
+
+          <div class="source" id="src-1">
+            <details class="source-details" open>
+              <summary>
+                <span class="src-num">1</span>
+                <span>
+                  <span class="src-doc">factura-2026-014.pdf</span>
+                  <span class="src-meta">Página 1 · Condiciones de pago</span>
+                </span>
+                <svg class="ico chevron" width="15" height="15" aria-hidden="true"><use href="#i-chevron"/></svg>
+              </summary>
+              <div class="src-body">
+                <blockquote class="quote">
+                  El saldo de <mark>$480.000</mark> deberá abonarse dentro de los
+                  <mark>quince (15) días corridos</mark> posteriores a la entrega de la galería final.
+                </blockquote>
+                <div class="src-foot">
+                  <span class="verified">
+                    <svg class="ico" width="12" height="12" aria-hidden="true"><use href="#i-check"/></svg>
+                    Cita verificada
+                  </span>
+                  <button class="btn btn-quiet" type="button"
+                          hx-get="/sources/128" hx-target="#src-detail-1" hx-swap="innerHTML">
+                    Ver página completa
+                  </button>
+                </div>
+                <div class="src-detail" id="src-detail-1"></div>
+              </div>
+            </details>
+          </div>
+
+          <div class="source" id="src-2">
+            <details class="source-details">
+              <summary>
+                <span class="src-num">2</span>
+                <span>
+                  <span class="src-doc">contrato-boda-marisol-tomas.pdf</span>
+                  <span class="src-meta">Página 3 · Cláusula 4.2 — Plazos</span>
+                </span>
+                <svg class="ico chevron" width="15" height="15" aria-hidden="true"><use href="#i-chevron"/></svg>
+              </summary>
+              <div class="src-body">
+                <blockquote class="quote">
+                  Entregada la galería, el cliente abonará el saldo pendiente en un plazo máximo de
+                  <mark>quince (15) días corridos</mark>, contados desde la fecha de entrega.
+                </blockquote>
+                <div class="src-foot">
+                  <span class="verified">
+                    <svg class="ico" width="12" height="12" aria-hidden="true"><use href="#i-check"/></svg>
+                    Cita verificada
+                  </span>
+                  <button class="btn btn-quiet" type="button"
+                          hx-get="/sources/94" hx-target="#src-detail-2" hx-swap="innerHTML">
+                    Ver página completa
+                  </button>
+                </div>
+                <div class="src-detail" id="src-detail-2"></div>
+              </div>
+            </details>
+          </div>
+
+          <div class="source" id="src-3">
+            <details class="source-details">
+              <summary>
+                <span class="src-num">3</span>
+                <span>
+                  <span class="src-doc">factura-2026-021.pdf</span>
+                  <span class="src-meta">Página 1 · Condiciones de pago</span>
+                </span>
+                <svg class="ico chevron" width="15" height="15" aria-hidden="true"><use href="#i-chevron"/></svg>
+              </summary>
+              <div class="src-body">
+                <blockquote class="quote">
+                  El pago se realizará dentro de los <mark>diez (10) días hábiles</mark> posteriores a la
+                  emisión de la factura.
+                </blockquote>
+                <div class="src-foot">
+                  <span class="verified">
+                    <svg class="ico" width="12" height="12" aria-hidden="true"><use href="#i-check"/></svg>
+                    Cita verificada
+                  </span>
+                  <button class="btn btn-quiet" type="button"
+                          hx-get="/sources/141" hx-target="#src-detail-3" hx-swap="innerHTML">
+                    Ver página completa
+                  </button>
+                </div>
+                <div class="src-detail" id="src-detail-3"></div>
+              </div>
+            </details>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="panel draft" aria-labelledby="draft-title">
+        <div class="panel-head draft-head">
+          <h2 class="panel-title" id="draft-title">Borrador</h2>
+          <span class="draft-sub">Marisol Ruiz · $480.000</span>
+        </div>
+
+        <div class="draft-body" id="draft-panel">
+          <article class="md-preview">
+            <p class="md-kicker">Recordatorio de pago</p>
+            <h3>Hola Marisol</h3>
+            <p>
+              Te escribo por el saldo de <strong>$480.000</strong> de la boda del 12 de octubre.
+              La factura 2026-014 venció el 10 de noviembre.
+            </p>
+            <p>
+              Si ya la hiciste, mandame el comprobante y lo registro;
+              si no, avisame y coordinamos.
+            </p>
+            <p class="md-sign">Gracias, Lucía</p>
+          </article>
+
+          <details class="raw">
+            <summary>Ver el Markdown completo</summary>
+            <pre>---
+tipo: recordatorio-pago
+cliente: Marisol Ruiz
+factura: 2026-014
+monto: 480000
+moneda: ARS
+vencimiento: 2026-11-10
+estado: vencida
+fuente: factura-2026-014.pdf#p1
+creado: 2026-11-18
+---
+
+# Recordatorio de pago — Marisol Ruiz
+
+Hola Marisol,
+
+Te escribo por el saldo de **$480.000** de la boda del 12 de octubre.
+La factura 2026-014 venció el 10 de noviembre.
+
+Si ya la hiciste, mandame el comprobante y lo registro; si no,
+avisame y coordinamos.
+
+Gracias,
+Lucía</pre>
+          </details>
+
+          <div class="draft-actions">
+            <button class="btn btn-primary" type="button"
+                    hx-post="/draft" hx-vals='{"client":"marisol-ruiz","mode":"save"}'
+                    hx-target="#draft-panel" hx-swap="innerHTML" hx-indicator="#draft-indicator">
+              <svg class="ico" width="14" height="14" aria-hidden="true"><use href="#i-vault"/></svg>
+              Guardar en Obsidian
+            </button>
+            <button class="btn btn-ghost" type="button">Copiar</button>
+            <span class="spinner htmx-indicator" id="draft-indicator" aria-hidden="true"></span>
+          </div>
+
+          <p class="draft-origin">
+            <svg class="ico" width="12" height="12" aria-hidden="true"><use href="#i-check"/></svg>
+            <span>Verificado contra la cláusula 4.2 y la factura 2026-014.</span>
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ===================== Anexo: estados de referencia ===================== -->
+  <section class="states" aria-labelledby="states-title">
+    <div class="states-head">
+      <h2 id="states-title">Estados de la interfaz</h2>
+      <p>Referencia de diseño. No forman parte de la pantalla de producto.</p>
+    </div>
+
+    <div class="state-grid">
+      <div class="state-card">
+        <span class="state-name">Empty</span>
+        <p class="state-body">Arranca sin documentos. El dropzone ocupa el lugar del chat y explica qué acepta.</p>
+        <div class="state-demo">
+          <div class="mini-drop">Arrastrá tu primer PDF o .md</div>
+        </div>
+      </div>
+
+      <div class="state-card">
+        <span class="state-name">Loading</span>
+        <p class="state-body">La pregunta se muestra igual; debajo, el turno del agente con tres líneas fantasma.</p>
+        <div class="state-demo mini-lines">
+          <span class="mini-loading">
+            <span class="spinner" aria-hidden="true"></span>
+            Buscando en 5 documentos…
+          </span>
+          <span class="mini-line w80"></span>
+          <span class="mini-line w60"></span>
+          <span class="mini-line w45"></span>
+        </div>
+      </div>
+
+      <div class="state-card">
+        <span class="state-name">Refusal</span>
+        <p class="state-body">Sin evidencia suficiente no inventa: dice qué falta y sugiere una pregunta posible.</p>
+        <div class="state-demo">
+          <p class="mini-refusal">
+            No encontré una cláusula de cancelación en tus contratos. Puedo mostrarte lo que dicen
+            sobre reprogramación.
+          </p>
+        </div>
+      </div>
+
+      <div class="state-card">
+        <span class="state-name">Error</span>
+        <p class="state-body">Ollama apagado o índice roto. Mensaje en lenguaje llano y un solo botón para reintentar.</p>
+        <div class="state-demo">
+          <p class="mini-error">
+            Ollama no está respondiendo. Abrí la app desde el ícono del Dock y volvé a intentar.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ========================= Diálogo de borrado ========================= -->
+<dialog class="dialog" id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-desc">
+  <div class="dialog-inner">
+    <h2 id="delete-title">
+      <span class="dialog-icon" aria-hidden="true">
+        <svg class="ico" width="15" height="15"><use href="#i-alert"/></svg>
+      </span>
+      ¿Borrar todo?
+    </h2>
+    <p id="delete-desc">
+      Se elimina de esta Mac todo lo que la app guardó. No se puede deshacer y no queda copia en
+      ningún servidor, porque nunca hubo una.
+    </p>
+    <ul>
+      <li>El índice de documentos y los fragmentos</li>
+      <li>Los embeddings y el historial de consultas</li>
+      <li>Los borradores de <code>output/</code></li>
+    </ul>
+    <p>Tus archivos originales en el disco no se tocan.</p>
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" type="button" commandfor="delete-dialog" command="close">
+        Cancelar
+      </button>
+      <button class="btn btn-danger" type="button"
+              hx-post="/delete" hx-vals='{"confirm":"borrar-todo"}'>
+        Sí, borrar todo
+      </button>
+    </div>
+  </div>
+</dialog>
+
+</body>
+</html>

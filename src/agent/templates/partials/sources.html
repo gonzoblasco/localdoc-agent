@@ -1,0 +1,21 @@
+{% for s in result.sources %}
+<div class="source">
+  <details class="source-details" open>
+    <summary>
+      <span class="src-num">{{ loop.index }}</span>
+      <span>
+        <span class="src-doc">{{ s.document }}</span>
+        <span class="src-meta">Página {{ s.page }} · {{ s.section }}</span>
+      </span>
+    </summary>
+    <div class="src-body">
+      <blockquote class="quote">{{ s.text[:300] }}{% if s.text|length > 300 %}…{% endif %}</blockquote>
+      <div class="src-foot">
+        <span class="verified">✓ Cita verificada</span>
+      </div>
+    </div>
+  </details>
+</div>
+{% else %}
+<p class="muted">Sin fuentes verificadas.</p>
+{% endfor %}

@@ -1,0 +1,17 @@
+<ul class="doc-list">
+  {% for d in documents %}
+  <li class="doc">
+    <span class="doc-icon" aria-hidden="true">📄</span>
+    <span class="doc-body">
+      <span class="doc-name">{{ d[1] }}</span>
+      <span class="doc-meta-row">
+        <span class="doc-meta">{{ d[3] }} fragmentos</span>
+        <span class="chip chip-ok">Indexado</span>
+      </span>
+    </span>
+  </li>
+  {% else %}
+  <li class="muted">Todavía no hay documentos. Arrastrá tus PDFs o Markdown.</li>
+  {% endfor %}
+</ul>
+<p class="muted">{{ total_chunks }} fragmentos en total.</p>
