@@ -23,11 +23,16 @@
 
 ## Qué falta
 
-- Completar la eval de 18 preguntas (`eval/run_eval.py`).
-- Revisar el modelo: ~58 s por respuesta con `gemma4:12b-mlx` en Mac mini. Considerar `qwen3.5:9b` para laptops más chicas.
+- Probar `gemma4:4b` para latencia (el 12B tarda ~50 s por respuesta en la Mac mini).
 - Probar la UI en un navegador real con el flujo completo (drag-and-drop, ask, draft).
 - Verificar el botón "Delete everything" en la UI.
 - Probar `run.command` en una Mac limpia.
+
+## Fix reciente (2026-11-18)
+
+- **q07 (suma de totales)**: se agregó `src/agent/calc.py` con un cálculo determinístico de `Monto Total` de los contratos. La eval quedó **18/18 (100%)**.
+- **Modelos**: `qwen3.5:9b` instalado (7.6 GB). Un prompt simple con `num_ctx=8192` tardó 20.7 s; el RAG completo no mostró mejora clara. `gemma4:12b-mlx` sigue como baseline (~50 s). `num_ctx=8192` hizo más lento a gemma4 (134 s la primera respuesta), así que se revirtió.
+- **Tests**: 10 verdes (`test_calc.py` incluido).
 
 ## Cómo retomar
 
