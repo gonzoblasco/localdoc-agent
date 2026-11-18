@@ -13,6 +13,7 @@ from .verify import verify_citations
 from .calc import fmt_ars, sum_totals
 
 MODEL = os.environ.get("NIDO_MODEL", "gemma4:12b-mlx")
+NUM_CTX = int(os.environ.get("NIDO_NUM_CTX", "0") or 0)
 
 _SYSTEM = (
     "Sos un asistente que responde preguntas sobre contratos y facturas. "
@@ -75,7 +76,10 @@ def answer_question(conn, query: str) -> Dict[str, Any]:
     ]
 
     def call() -> Dict[str, Any]:
-        resp = ollama.chat(model=MODEL, messages=messages, format="json")
+        kwargs = {"model": MODEL, "messages": messages, "format": "json"}
+        if NUM_CTX:
+            kwargs["options"] = {"num_ctx": NUM_CTX}
+        resp = ollama.chat(**kwargs)
         content = resp["message"]["content"]
         return json.loads(content)
 
