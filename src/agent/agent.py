@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from typing import Any, Dict, List
 
 import ollama
@@ -11,7 +12,7 @@ from .retrieve import hybrid_search
 from .verify import verify_citations
 from .calc import fmt_ars, sum_totals
 
-MODEL = "gemma4:12b-mlx"
+MODEL = os.environ.get("NIDO_MODEL", "gemma4:12b-mlx")
 
 _SYSTEM = (
     "Sos un asistente que responde preguntas sobre contratos y facturas. "

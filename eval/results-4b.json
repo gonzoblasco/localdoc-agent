@@ -1,0 +1,191 @@
+{
+  "total": 18,
+  "correct": 2,
+  "accuracy": 0.111,
+  "with_citations": 2,
+  "p50_latency_s": 6.82,
+  "model": "gemma3:4b",
+  "results": [
+    {
+      "id": "q01",
+      "type": "easy",
+      "question": "¿Cuál es el monto total del contrato de Empresa Alpha?",
+      "expected": "$15.000,00",
+      "answer": "El monto total del contrato de Empresa Alpha es de $15.000,00.",
+      "correct": true,
+      "citations": 1,
+      "latency_s": 8.6
+    },
+    {
+      "id": "q02",
+      "type": "easy",
+      "question": "¿Cuál es el monto total del contrato de Empresa Beta?",
+      "expected": "$8.400,00",
+      "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 8.73
+    },
+    {
+      "id": "q03",
+      "type": "easy",
+      "question": "¿Cuál es la fecha del contrato de Empresa Alpha?",
+      "expected": "2026-01-10",
+      "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 6.23
+    },
+    {
+      "id": "q04",
+      "type": "easy",
+      "question": "¿Cuál es la fecha del contrato de Empresa Beta?",
+      "expected": "2026-03-05",
+      "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 5.79
+    },
+    {
+      "id": "q05",
+      "type": "easy",
+      "question": "¿Cuál es el total a pagar de la factura 2026-001?",
+      "expected": "$4.000,00",
+      "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 16.37
+    },
+    {
+      "id": "q06",
+      "type": "easy",
+      "question": "¿A quién está dirigida la factura 2026-001?",
+      "expected": "Cliente Delta",
+      "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 7.37
+    },
+    {
+      "id": "q07",
+      "type": "multi_hop",
+      "question": "¿Cuál es la suma de los montos totales de los dos contratos?",
+      "expected": "$23.400,00",
+      "answer": "La suma de los montos totales de los dos contratos es $23.400,00.",
+      "correct": true,
+      "citations": 2,
+      "latency_s": 0.04
+    },
+    {
+      "id": "q08",
+      "type": "multi_hop",
+      "question": "¿Qué contrato tiene mayor duración?",
+      "expected": "Empresa Beta (24 meses)",
+      "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 6.3
+    },
+    {
+      "id": "q09",
+      "type": "multi_hop",
+      "question": "¿Qué cliente paga mensualmente?",
+      "expected": "Empresa Alpha",
+      "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 11.19
+    },
+    {
+      "id": "q10",
+      "type": "multi_hop",
+      "question": "¿Qué cliente paga trimestralmente?",
+      "expected": "Empresa Beta",
+      "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 7.74
+    },
+    {
+      "id": "q11",
+      "type": "multi_hop",
+      "question": "¿Qué documento menciona una disponibilidad del 99,5%?",
+      "expected": "Contrato de Empresa Beta",
+      "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 6.81
+    },
+    {
+      "id": "q12",
+      "type": "multi_hop",
+      "question": "¿Qué proveedor emite la factura 2026-001?",
+      "expected": "Empresa Gamma",
+      "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 5.92
+    },
+    {
+      "id": "q13",
+      "type": "no_answer",
+      "question": "¿Cuál es el teléfono de Empresa Alpha?",
+      "expected": "No está en los documentos",
+      "answer": "No lo encontré en los documentos.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 2.83
+    },
+    {
+      "id": "q14",
+      "type": "no_answer",
+      "question": "¿Cuántos empleados tiene Cliente Delta?",
+      "expected": "No está en los documentos",
+      "answer": "No lo encontré en los documentos.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 2.82
+    },
+    {
+      "id": "q15",
+      "type": "no_answer",
+      "question": "¿Cuál es el CUIT de Empresa Gamma?",
+      "expected": "No está en los documentos",
+      "answer": "No lo encuentro en los documentos.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 2.65
+    },
+    {
+      "id": "q16",
+      "type": "numeric",
+      "question": "¿Cuántos meses dura el contrato de Empresa Alpha?",
+      "expected": "12 meses",
+      "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 7.63
+    },
+    {
+      "id": "q17",
+      "type": "numeric",
+      "question": "¿Cuántos días hábiles hay para pagar la factura?",
+      "expected": "10 días hábiles",
+      "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 6.82
+    },
+    {
+      "id": "q18",
+      "type": "numeric",
+      "question": "¿Cuál es el monto del soporte técnico en la factura?",
+      "expected": "$1.000,00",
+      "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
+      "correct": false,
+      "citations": 0,
+      "latency_s": 8.17
+    }
+  ],
+  "scored_with": "rescored-tolerant-v1"
+}

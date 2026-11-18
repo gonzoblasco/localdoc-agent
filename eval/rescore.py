@@ -9,10 +9,11 @@ scoring only.
 from __future__ import annotations
 
 import json
+import os
 import unicodedata
 from pathlib import Path
 
-RESULTS = Path("eval/results.json")
+RESULTS = Path(os.environ.get("NIDO_EVAL_OUT", "eval/results.json"))
 
 
 def norm(text: str) -> str:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -15,7 +16,7 @@ from agent.db import init_db  # noqa: E402
 
 DB = Path("data/index.db")
 QUESTIONS = Path("eval/questions.yaml")
-OUT = Path("eval/results.json")
+OUT = Path(os.environ.get("NIDO_EVAL_OUT", "eval/results.json"))
 
 
 def keyword_ok(keywords, answer):
@@ -71,6 +72,7 @@ def main():
         "accuracy": round(correct / total, 3) if total else 0,
         "with_citations": with_citations,
         "p50_latency_s": p50,
+        "model": os.environ.get("NIDO_MODEL", "gemma4:12b-mlx"),
         "results": results,
     }
     OUT.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")

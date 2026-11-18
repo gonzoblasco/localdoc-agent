@@ -32,6 +32,7 @@
 
 - **q07 (suma de totales)**: se agregó `src/agent/calc.py` con un cálculo determinístico de `Monto Total` de los contratos. La eval quedó **18/18 (100%)**.
 - **Modelos**: `qwen3.5:9b` instalado (7.6 GB). Un prompt simple con `num_ctx=8192` tardó 20.7 s; el RAG completo no mostró mejora clara. `gemma4:12b-mlx` sigue como baseline (~50 s). `num_ctx=8192` hizo más lento a gemma4 (134 s la primera respuesta), así que se revirtió.
+- **Benchmark 4B (2026-11-18)**: `gemma3:4b` (3.4 GB) — **4/18 (22.2%)**, P50 **6.8 s**. Rápido pero inexacto: falla fechas, montos y clientes. No sirve para contratos. `gemma4:12b-mlx` sigue siendo el elegido (18/18, ~50 s).
 - **Tests**: 10 verdes (`test_calc.py` incluido).
 
 ## Cómo retomar
