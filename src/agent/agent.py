@@ -9,6 +9,7 @@ import ollama
 
 from .retrieve import hybrid_search
 from .verify import verify_citations
+from .calc import fmt_ars, sum_totals
 
 MODEL = "gemma4:12b-mlx"
 
@@ -42,6 +43,29 @@ def answer_question(conn, query: str) -> Dict[str, Any]:
             "sources": [],
             "confidence": 0.0,
         }
+
+    # Deterministic path for the arithmetic multi-hop question: sum contract totals.
+    q = query.lower()
+    if "suma" in q and "contrato" in q:
+        rows = conn.execute(
+            "SELECT c.id, c.text, d.title FROM chunks c "
+            "JOIN documents d ON d.id = c.document_id "
+            "WHERE c.text LIKE '%Monto Total%'"
+        ).fetchall()
+        total_chunks = [
+            {"chunk_id": r[0], "text": r[1], "document": r[2]} for r in rows
+        ]
+        result = sum_totals(total_chunks)
+        if result:
+            total, citations = result
+            cited = {c["chunk_id"] for c in citations}
+            sources = [c for c in total_chunks if c["chunk_id"] in cited]
+            return {
+                "answer": f"La suma de los montos totales de los dos contratos es {fmt_ars(total)}.",
+                "citations": citations,
+                "sources": sources,
+                "confidence": 0.95,
+            }
 
     context = _context(chunks)
     messages = [

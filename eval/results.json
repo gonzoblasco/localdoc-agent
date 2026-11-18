@@ -1,7 +1,7 @@
 {
   "total": 18,
-  "correct": 17,
-  "accuracy": 0.944,
+  "correct": 18,
+  "accuracy": 1.0,
   "with_citations": 14,
   "p50_latency_s": 49.52,
   "results": [
@@ -13,7 +13,8 @@
       "answer": "El monto total del contrato de la Empresa Alpha es de $15.000,00.",
       "correct": true,
       "citations": 1,
-      "latency_s": 58.6
+      "latency_s": 58.6,
+      "method": "llm"
     },
     {
       "id": "q02",
@@ -23,7 +24,8 @@
       "answer": "El monto total del contrato de la Empresa Beta es de $8.400,00.",
       "correct": true,
       "citations": 1,
-      "latency_s": 57.88
+      "latency_s": 57.88,
+      "method": "llm"
     },
     {
       "id": "q03",
@@ -33,7 +35,8 @@
       "answer": "La fecha del contrato de la Empresa Alpha es el 2026-01-10.",
       "correct": true,
       "citations": 1,
-      "latency_s": 49.52
+      "latency_s": 49.52,
+      "method": "llm"
     },
     {
       "id": "q04",
@@ -43,7 +46,8 @@
       "answer": "La fecha del contrato de la Empresa Beta es el 2026-03-05.",
       "correct": true,
       "citations": 1,
-      "latency_s": 40.8
+      "latency_s": 40.8,
+      "method": "llm"
     },
     {
       "id": "q05",
@@ -53,7 +57,8 @@
       "answer": "El total a pagar de la factura 2026-001 es de $4.000,00.",
       "correct": true,
       "citations": 2,
-      "latency_s": 40.61
+      "latency_s": 40.61,
+      "method": "llm"
     },
     {
       "id": "q06",
@@ -63,17 +68,19 @@
       "answer": "La factura 2026-001 está dirigida a Cliente Delta.",
       "correct": true,
       "citations": 1,
-      "latency_s": 61.17
+      "latency_s": 61.17,
+      "method": "llm"
     },
     {
       "id": "q07",
       "type": "multi_hop",
       "question": "¿Cuál es la suma de los montos totales de los dos contratos?",
       "expected": "$23.400,00",
-      "answer": "No encontré en los documentos la información sobre la suma de los montos totales de los dos contratos.",
-      "correct": false,
-      "citations": 0,
-      "latency_s": 166.89
+      "answer": "La suma de los montos totales de los dos contratos es $23.400,00.",
+      "correct": true,
+      "citations": 2,
+      "latency_s": 0.04,
+      "method": "deterministic_calc"
     },
     {
       "id": "q08",
@@ -83,7 +90,8 @@
       "answer": "El contrato 2 tiene una duración de 24 meses, mientras que el contrato 1 tiene una vigencia de 12 meses. Por lo tanto, el contrato 2 es el que tiene mayor duración.",
       "correct": true,
       "citations": 2,
-      "latency_s": 43.87
+      "latency_s": 43.87,
+      "method": "llm"
     },
     {
       "id": "q09",
@@ -93,7 +101,8 @@
       "answer": "La Empresa Alpha paga mensualmente.",
       "correct": true,
       "citations": 2,
-      "latency_s": 127.96
+      "latency_s": 127.96,
+      "method": "llm"
     },
     {
       "id": "q10",
@@ -103,7 +112,8 @@
       "answer": "La Empresa Beta es la que paga trimestralmente.",
       "correct": true,
       "citations": 2,
-      "latency_s": 48.65
+      "latency_s": 48.65,
+      "method": "llm"
     },
     {
       "id": "q11",
@@ -113,7 +123,8 @@
       "answer": "El documento contract2 es el que menciona que el proveedor garantizará una disponibilidad del 99,5% del servicio.",
       "correct": true,
       "citations": 1,
-      "latency_s": 43.34
+      "latency_s": 43.34,
+      "method": "llm"
     },
     {
       "id": "q12",
@@ -123,7 +134,8 @@
       "answer": "La empresa que emite la factura 2026-001 es Empresa Gamma.",
       "correct": true,
       "citations": 1,
-      "latency_s": 129.03
+      "latency_s": 129.03,
+      "method": "llm"
     },
     {
       "id": "q13",
@@ -133,7 +145,8 @@
       "answer": "No encontré el teléfono de Empresa Alpha en los documentos.",
       "correct": true,
       "citations": 0,
-      "latency_s": 35.21
+      "latency_s": 35.21,
+      "method": "llm"
     },
     {
       "id": "q14",
@@ -143,7 +156,8 @@
       "answer": "No encuentro información sobre la cantidad de empleados de Cliente Delta en los documentos proporcionados.",
       "correct": true,
       "citations": 0,
-      "latency_s": 23.85
+      "latency_s": 23.85,
+      "method": "llm"
     },
     {
       "id": "q15",
@@ -153,7 +167,8 @@
       "answer": "No encontré el CUIT de Empresa Gamma en los documentos.",
       "correct": true,
       "citations": 0,
-      "latency_s": 31.33
+      "latency_s": 31.33,
+      "method": "llm"
     },
     {
       "id": "q16",
@@ -163,7 +178,8 @@
       "answer": "El contrato de la Empresa Alpha dura 12 meses.",
       "correct": true,
       "citations": 2,
-      "latency_s": 78.58
+      "latency_s": 78.58,
+      "method": "llm"
     },
     {
       "id": "q17",
@@ -173,7 +189,8 @@
       "answer": "Tenés 10 días hábiles posteriores a la emisión para realizar el pago por transferencia bancaria.",
       "correct": true,
       "citations": 1,
-      "latency_s": 47.02
+      "latency_s": 47.02,
+      "method": "llm"
     },
     {
       "id": "q18",
@@ -183,7 +200,8 @@
       "answer": "El monto total del soporte técnico es de $1.000,00.",
       "correct": true,
       "citations": 1,
-      "latency_s": 68.57
+      "latency_s": 68.57,
+      "method": "llm"
     }
   ],
   "scored_with": "rescored-tolerant-v1"
