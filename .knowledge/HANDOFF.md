@@ -16,7 +16,11 @@ Implementación y push del fix del verificador en localdoc-agent: normalización
 
 ## Estado actual
 
-19/19 tests verdes; commits localdoc-agent 764b214 + 8586563; sitio 8a5f983 live.
+Tras el review del 2026-11-19: 25/25 tests verdes, HEAD `6594dde`; sitio 8a5f983 live.
+
+## Sobre el nombre del proyecto
+
+El repo, el directorio, la distribucion (`pyproject.toml`) y el slug del programa del Planner son `localdoc-agent`. **"Lucia" es una persona de ejemplo del ejercicio de diseno, no un cliente real**: no aparece en el README ni en ningun artefacto publico, y no debe presentarse como tal. El titulo y el brief del programa del Planner conservan el escenario original por ser registro historico.
 
 ## Proximos pasos
 
