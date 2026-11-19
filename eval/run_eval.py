@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import argparse
 import sys
 import time
 from pathlib import Path
@@ -13,6 +14,7 @@ import yaml
 sys.path.insert(0, "src")
 from agent.agent import answer_question  # noqa: E402
 from agent.db import init_db  # noqa: E402
+from agent.models import model_mode  # noqa: E402
 
 DB = Path("data/index.db")
 QUESTIONS = Path("eval/questions.yaml")
@@ -25,13 +27,27 @@ def keyword_ok(keywords, answer):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--model", default=os.environ.get("NIDO_MODEL", "gemma4:12b-mlx"))
+    parser.add_argument("--out", default=os.environ.get("NIDO_EVAL_OUT", "eval/results.json"))
+    parser.add_argument(
+        "--allow-cloud",
+        action="store_true",
+        help="Allow a :cloud model to send questions and chunks to Ollama Cloud.",
+    )
+    args = parser.parse_args()
+    if model_mode(args.model) == "cloud" and not args.allow_cloud:
+        raise SystemExit("Refusing a cloud model without --allow-cloud.")
+
     questions = yaml.safe_load(QUESTIONS.read_text(encoding="utf-8"))["questions"]
     conn = init_db(DB)
     results = []
     for q in questions:
         t0 = time.perf_counter()
         try:
-            r = answer_question(conn, q["question"])
+            r = answer_question(
+                conn, q["question"], model=args.model, allow_cloud=args.allow_cloud
+            )
             latency = time.perf_counter() - t0
             answer = r["answer"]
             ok = keyword_ok(q.get("keywords", []), answer)
@@ -83,13 +99,13 @@ def main():
             "retry": retried,
             "refused": refused,
         },
-        "model": os.environ.get("NIDO_MODEL", "gemma4:12b-mlx"),
+        "model": args.model,
         "results": results,
     }
-    OUT.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    Path(args.out).write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\nAccuracy: {correct}/{total} ({summary['accuracy'] * 100:.1f}%)")
     print(f"P50 latency: {p50}s")
-    print(f"Results: {OUT}")
+    print(f"Results: {args.out}")
 
 
 if __name__ == "__main__":

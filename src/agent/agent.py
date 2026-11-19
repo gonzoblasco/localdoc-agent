@@ -11,8 +11,9 @@ import ollama
 from .retrieve import hybrid_search
 from .verify import verify_answer_literals, verify_citations
 from .calc import fmt_ars, sum_totals
+from .models import DEFAULT_MODEL, model_mode
 
-MODEL = os.environ.get("NIDO_MODEL", "gemma4:12b-mlx")
+MODEL = DEFAULT_MODEL
 NUM_CTX = int(os.environ.get("NIDO_NUM_CTX", "0") or 0)
 
 _SYSTEM = (
@@ -36,7 +37,28 @@ def _context(chunks: List[Dict[str, Any]]) -> str:
     return "\n\n".join(parts)
 
 
-def answer_question(conn, query: str) -> Dict[str, Any]:
+def answer_question(
+    conn, query: str, model: str | None = None, allow_cloud: bool = False
+) -> Dict[str, Any]:
+    resolved_model = model or MODEL
+    mode = model_mode(resolved_model)
+
+    if mode == "cloud" and not allow_cloud:
+        return {
+            "answer": (
+                "Ese modelo corre en Ollama Cloud: la pregunta y los fragmentos "
+                "salen de esta Mac. Marcá el consentimiento para usarlo."
+            ),
+            "citations": [],
+            "sources": [],
+            "confidence": 0.0,
+            "model": resolved_model,
+            "model_mode": mode,
+            "method": "blocked",
+            "attempts": 0,
+            "verification": "consent_required",
+        }
+
     chunks = hybrid_search(conn, query, top_k=8)
     if not chunks:
         return {
@@ -44,6 +66,8 @@ def answer_question(conn, query: str) -> Dict[str, Any]:
             "citations": [],
             "sources": [],
             "confidence": 0.0,
+            "model": resolved_model,
+            "model_mode": mode,
             "method": "no_answer",
             "attempts": 0,
             "verification": "no_answer",
@@ -70,6 +94,8 @@ def answer_question(conn, query: str) -> Dict[str, Any]:
                 "citations": citations,
                 "sources": sources,
                 "confidence": 0.95,
+                "model": resolved_model,
+                "model_mode": mode,
                 "method": "deterministic_calc",
                 "attempts": 1,
                 "verification": "deterministic",
@@ -82,7 +108,7 @@ def answer_question(conn, query: str) -> Dict[str, Any]:
     ]
 
     def call() -> Dict[str, Any]:
-        kwargs = {"model": MODEL, "messages": messages, "format": "json"}
+        kwargs = {"model": resolved_model, "messages": messages, "format": "json"}
         if NUM_CTX:
             kwargs["options"] = {"num_ctx": NUM_CTX}
         resp = ollama.chat(**kwargs)
@@ -121,6 +147,8 @@ def answer_question(conn, query: str) -> Dict[str, Any]:
             "citations": [],
             "sources": [],
             "confidence": 0.0,
+            "model": resolved_model,
+            "model_mode": mode,
             "method": "llm",
             "attempts": attempts,
             "verification": "refused",
@@ -133,6 +161,8 @@ def answer_question(conn, query: str) -> Dict[str, Any]:
         "citations": valid,
         "sources": sources,
         "confidence": confidence,
+        "model": resolved_model,
+        "model_mode": mode,
         "method": "llm",
         "attempts": attempts,
         "verification": "first_try" if attempts == 1 else "retry",

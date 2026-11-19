@@ -18,8 +18,8 @@
       </span>
     </div>
     <div class="topbar-right">
-      <span class="privacy-badge">Local. Private. Yours.</span>
-      <span class="net-counter">Network requests: <strong>{{ network_requests }}</strong></span>
+      <span class="privacy-badge {{ 'is-cloud' if model_mode == 'cloud' else '' }}">{{ 'Cloud: sale de tu Mac' if model_mode == 'cloud' else 'Local. Private. Yours.' }}</span>
+      <span class="net-counter">Modelo: <strong>{{ model_name }}</strong></span>
     </div>
   </header>
 
@@ -46,8 +46,8 @@
             <p class="health-title">Estado</p>
             <div class="health-row">
               <span class="dot dot-ok" aria-hidden="true"></span>
-              <span class="health-label">Ollama corriendo</span>
-              <span class="health-detail">gemma4:12b-mlx</span>
+              <span class="health-label">Modelo</span>
+              <span class="health-detail">{{ model_mode }}</span>
             </div>
             <div class="health-row">
               <span class="dot dot-ok" aria-hidden="true"></span>
@@ -87,8 +87,16 @@
           <form class="composer" hx-post="/ask" hx-target="#chat-log" hx-swap="beforeend" hx-indicator="#ask-indicator">
             <label class="sr-only" for="q">Tu pregunta</label>
             <textarea id="q" name="query" rows="1" placeholder="Escribí tu pregunta, como se la harías a alguien…" required></textarea>
+            <div class="composer-options">
+              <label class="model-pick" for="model">Modelo</label>
+              <select id="model" name="model">
+                <option value="{{ local_model }}" {% if model_name == local_model %}selected{% endif %}>Local · {{ local_model }}</option>
+                <option value="{{ cloud_model }}" {% if model_name == cloud_model %}selected{% endif %}>Cloud · {{ cloud_model }}</option>
+              </select>
+              <label class="consent"><input type="checkbox" name="cloud_consent" value="true"> Acepto enviar esta consulta a Ollama Cloud</label>
+            </div>
             <div class="composer-foot">
-              <span class="composer-hint">Sin internet. Enter para enviar.</span>
+              <span class="composer-hint">Local: sin internet. Cloud: la consulta y los fragmentos salen de tu Mac.</span>
               <span class="spinner htmx-indicator" id="ask-indicator" aria-hidden="true"></span>
               <button class="btn btn-primary" type="submit">Preguntar</button>
             </div>

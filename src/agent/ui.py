@@ -14,6 +14,7 @@ from fastapi.templating import Jinja2Templates
 from . import agent as agent_mod
 from . import db
 from .ingest import ingest_file
+from .models import CLOUD_MODEL, LOCAL_MODEL, model_mode
 from .retrieve import get_chunk
 
 BASE = Path(__file__).resolve().parents[2]
@@ -43,6 +44,10 @@ async def index(request: Request):
             "documents": docs,
             "total_chunks": chunks,
             "network_requests": 0,
+            "model_name": agent_mod.MODEL,
+            "model_mode": model_mode(agent_mod.MODEL),
+            "local_model": LOCAL_MODEL,
+            "cloud_model": CLOUD_MODEL,
         }
     )
     return HTMLResponse(html)
@@ -66,12 +71,23 @@ async def ingest(files: List[UploadFile] = File(...)):
 
 
 @app.post("/ask", response_class=HTMLResponse)
-async def ask(query: str = Form(...)):
+async def ask(
+    query: str = Form(...),
+    model: str = Form(""),
+    cloud_consent: bool = Form(False),
+):
     conn = _conn()
-    result = agent_mod.answer_question(conn, query)
+    result = agent_mod.answer_question(
+        conn, query, model=model or None, allow_cloud=cloud_consent
+    )
     conn.close()
     html = templates.get_template("partials/answer.html").render(
-        {"result": result, "query": query}
+        {
+            "result": result,
+            "query": query,
+            "model_name": result.get("model", agent_mod.MODEL),
+            "model_mode": result.get("model_mode", "local"),
+        }
     )
     return HTMLResponse(html)
 
@@ -122,7 +138,8 @@ async def health():
     conn.close()
     return {
         "ollama_ok": ok,
-        "model": "gemma4:12b-mlx",
+        "model": agent_mod.MODEL,
+        "model_mode": model_mode(agent_mod.MODEL),
         "documents": docs,
         "chunks": chunks,
     }

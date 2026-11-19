@@ -2,12 +2,23 @@
   <div class="msg-head">
     <span class="avatar" aria-hidden="true">◉</span>
     <span class="msg-author">Nido</span>
+    {% if result.model_mode == "cloud" %}
+    <span class="chip chip-cloud">Cloud</span>
+    {% else %}
+    <span class="chip chip-ok">Local</span>
+    {% endif %}
+    {% if result.verification == "consent_required" %}
+    <span class="chip chip-warn">Cloud sin consentimiento</span>
+    {% endif %}
     {% if result.citations %}
     <span class="chip chip-ok chip-dot">{{ result.citations|length }} citas verificadas</span>
     {% endif %}
   </div>
   <div class="msg-body">
     <p>{{ result.answer }}</p>
+    {% if result.model_mode == "cloud" and result.verification != "consent_required" %}
+    <p class="msg-note">Consulta enviada a Ollama Cloud con la pregunta y los fragmentos recuperados.</p>
+    {% endif %}
     {% if result.citations %}
     <p class="citations">
       {% for c in result.citations %}
