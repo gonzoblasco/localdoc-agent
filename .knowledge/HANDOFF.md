@@ -1,7 +1,7 @@
-# HANDOFF - agente-local-amigo
+# HANDOFF - localdoc-agent
 
 **Fecha:** 2026-11-19 00:02 GMT-3
-**Proyecto:** agente-local-amigo
+**Proyecto:** localdoc-agent
 **Branch:** main
 **Repo:** https://github.com/gonzoblasco/localdoc-agent
 **Autor:** Kanam (CORE)

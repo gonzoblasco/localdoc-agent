@@ -1,4 +1,4 @@
-# SESSIONS - agente-local-amigo
+# SESSIONS - localdoc-agent
 
 > Indice append-only de cierres de sesion. El HANDOFF.md es solo el estado actual; esta lista es la historia (no se pisa).
 
