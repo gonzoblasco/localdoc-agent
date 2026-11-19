@@ -220,8 +220,14 @@ def verify_citations(
     invalid: List[Dict[str, Any]] = []
     for cit in citations:
         cid = cit.get("chunk_id")
+        try:
+            cid = int(cid)
+        except (TypeError, ValueError):
+            pass
         quote = cit.get("quote", "")
         chunk = chunks_by_id.get(cid, "")
+        if not chunk and cid is not None:
+            chunk = chunks_by_id.get(str(cid), "")
         if not chunk:
             invalid.append(cit)
             continue

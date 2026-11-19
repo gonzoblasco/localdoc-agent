@@ -21,6 +21,15 @@ def test_invented_quote_is_invalid():
     assert len(invalid) == 1
 
 
+def test_string_chunk_id_is_coerced_to_int():
+    chunks = {1: "The contract term is 12 months."}
+    valid, invalid = verify_citations(
+        [{"chunk_id": "1", "quote": "12 months"}], chunks
+    )
+    assert invalid == []
+    assert len(valid) == 1
+
+
 def test_real_quote_that_does_not_support_the_claim_is_flagged():
     chunks = {
         1: "4.2 The renewal notice period is thirty (30) days before the end of the term. "
