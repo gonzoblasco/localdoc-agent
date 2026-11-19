@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 import ollama
 
 from .retrieve import hybrid_search
-from .verify import verify_citations
+from .verify import verify_answer_literals, verify_citations
 from .calc import fmt_ars, sum_totals
 
 MODEL = os.environ.get("NIDO_MODEL", "gemma4:12b-mlx")
@@ -44,6 +44,9 @@ def answer_question(conn, query: str) -> Dict[str, Any]:
             "citations": [],
             "sources": [],
             "confidence": 0.0,
+            "method": "no_answer",
+            "attempts": 0,
+            "verification": "no_answer",
         }
 
     # Deterministic path for the arithmetic multi-hop question: sum contract totals.
@@ -67,6 +70,9 @@ def answer_question(conn, query: str) -> Dict[str, Any]:
                 "citations": citations,
                 "sources": sources,
                 "confidence": 0.95,
+                "method": "deterministic_calc",
+                "attempts": 1,
+                "verification": "deterministic",
             }
 
     context = _context(chunks)
@@ -94,23 +100,30 @@ def answer_question(conn, query: str) -> Dict[str, Any]:
     citations = payload.get("citations", [])
     confidence = float(payload.get("confidence", 0.0))
     valid, invalid = verify_citations(citations, chunks_by_id)
+    missing = verify_answer_literals(answer, valid)
+    attempts = 1
 
-    if invalid:
+    if invalid or missing:
+        attempts = 2
         try:
             payload = call()
             answer = payload.get("answer", "")
             citations = payload.get("citations", [])
             confidence = float(payload.get("confidence", 0.0))
             valid, invalid = verify_citations(citations, chunks_by_id)
+            missing = verify_answer_literals(answer, valid)
         except Exception:
             pass
 
-    if invalid:
+    if invalid or missing:
         return {
             "answer": "No pude verificar las citas de esa respuesta. Probá reformular la pregunta.",
             "citations": [],
             "sources": [],
             "confidence": 0.0,
+            "method": "llm",
+            "attempts": attempts,
+            "verification": "refused",
         }
 
     by_id = {c["chunk_id"]: c for c in chunks}
@@ -120,4 +133,7 @@ def answer_question(conn, query: str) -> Dict[str, Any]:
         "citations": valid,
         "sources": sources,
         "confidence": confidence,
+        "method": "llm",
+        "attempts": attempts,
+        "verification": "first_try" if attempts == 1 else "retry",
     }

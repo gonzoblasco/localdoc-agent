@@ -45,6 +45,9 @@ def main():
                     "correct": ok,
                     "citations": len(r["citations"]),
                     "latency_s": round(latency, 2),
+                    "method": r.get("method", "llm"),
+                    "attempts": r.get("attempts", 1),
+                    "verification": r.get("verification", ""),
                 }
             )
         except Exception as exc:
@@ -66,12 +69,20 @@ def main():
     with_citations = sum(1 for r in results if r.get("citations", 0) > 0)
     latencies = [r["latency_s"] for r in results if "latency_s" in r]
     p50 = sorted(latencies)[len(latencies) // 2] if latencies else None
+    first_try = sum(1 for r in results if r.get("verification") == "first_try")
+    retried = sum(1 for r in results if r.get("verification") == "retry")
+    refused = sum(1 for r in results if r.get("verification") == "refused")
     summary = {
         "total": total,
         "correct": correct,
         "accuracy": round(correct / total, 3) if total else 0,
         "with_citations": with_citations,
         "p50_latency_s": p50,
+        "verification": {
+            "first_try": first_try,
+            "retry": retried,
+            "refused": refused,
+        },
         "model": os.environ.get("NIDO_MODEL", "gemma4:12b-mlx"),
         "results": results,
     }
