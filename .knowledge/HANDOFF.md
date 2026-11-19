@@ -1,64 +1,28 @@
-# HANDOFF — Agente local para Lucía
+# HANDOFF — localdoc-agent (antes agente-local-amigo)
 
-## Estado
+## Estado: MVP cerrado, repo publico
 
-- Proyecto: `projects/agente-local-amigo/`
-- Programa: `agente-local-lucia` (Planner), 7 pasos.
-- Pasos 1-5 completados. Paso 6 (eval) en curso. Paso 7 (packaging) pendiente.
-- App funcional: `uv run uvicorn src.agent.ui:app --port 8000`.
-- Demo: 3 documentos sintéticos, 13 chunks.
-- Tests: 8 verdes.
+- Repo: https://github.com/gonzoblasco/localdoc-agent (MIT, publico)
+- Programa `agente-local-lucia`: 7/7 pasos cerrados. 10 tests verdes.
+- Eval 18/18 (P50 49.5 s) con gemma4:12b-mlx; gemma3:4b 4/18 en 6.8 s; qwen3.5:9b no completo.
 
-## Qué funciona
+## Verificado
 
-- Ingesta de PDFs (texto) y Markdown.
-- Chunking por cláusula.
-- SQLite + FTS5 + sqlite-vec (`vec0`, `FLOAT[1024]`).
-- Embeddings reales con BGE-M3 (`ollama.embed`).
-- Retrieval híbrido BM25 + KNN + RRF.
-- Agente con `gemma4:12b-mlx` y JSON de salida.
-- Verificación determinística de citas (substring exacto).
-- UI FastAPI + HTMX: home, ingest, ask, draft, source detail, delete, health.
-- Health: 3 docs, 13 chunks, Ollama OK.
+- Hybrid retrieval real (BM25 + `vec0` KNN + RRF).
+- Citas por substring (`verify.py`); q07 resuelto con calculo determinista (`calc.py`).
+- Flujo UI completo: ingesta PDF real, consulta con cita, draft, delete (204).
 
-## Qué falta
+## Deuda abierta
 
-- Probar `gemma4:4b` para latencia (el 12B tarda ~50 s por respuesta en la Mac mini).
-- Probar la UI en un navegador real con el flujo completo (drag-and-drop, ask, draft).
-- Verificar el botón "Delete everything" en la UI.
-- Probar `run.command` en una Mac limpia.
+1. ~50 s por respuesta con el 12B: medir en el hardware final.
+2. PDFs escaneados fuera de alcance (sin OCR).
+3. Eval pequena y auto-escrita: no es un benchmark independiente.
 
-## Fix reciente (2026-11-18)
+## Como retomar
 
-- **q07 (suma de totales)**: se agregó `src/agent/calc.py` con un cálculo determinístico de `Monto Total` de los contratos. La eval quedó **18/18 (100%)**.
-- **Modelos**: `qwen3.5:9b` instalado (7.6 GB). Un prompt simple con `num_ctx=8192` tardó 20.7 s; el RAG completo no mostró mejora clara. `gemma4:12b-mlx` sigue como baseline (~50 s). `num_ctx=8192` hizo más lento a gemma4 (134 s la primera respuesta), así que se revirtió.
-- **Benchmark 4B (2026-11-18)**: `gemma3:4b` (3.4 GB) — **4/18 (22.2%)**, P50 **6.8 s**. Rápido pero inexacto: falla fechas, montos y clientes. No sirve para contratos. `gemma4:12b-mlx` sigue siendo el elegido (18/18, ~50 s).
-- **Tests**: 10 verdes (`test_calc.py` incluido).
-
-## Cómo retomar
-
-1. `cd projects/agente-local-amigo`
-2. `uv sync`
-3. `uv run python -m src.agent.demo_ingest`
-4. `uv run uvicorn src.agent.ui:app --port 8000`
-5. Abrir http://127.0.0.1:8000
-6. `uv run pytest -q`
-
-## Archivos clave
-
-- `src/agent/db.py` — esquema SQLite + sqlite-vec.
-- `src/agent/ingest.py` — extracción + chunking.
-- `src/agent/retrieve.py` — BM25 + KNN + RRF.
-- `src/agent/agent.py` — LLM + citas.
-- `src/agent/verify.py` — substring check.
-- `src/agent/ui.py` — FastAPI.
-- `ui/mockup.html` — diseño de referencia.
-- `eval/questions.yaml` — 18 preguntas.
-- `eval/run_eval.py` — runner de la eval.
-
-## Deuda conocida
-
-- `ingest.py` usa `json.dumps(emb)` como string; `sqlite-vec` lo acepta, pero un blob `array('f', emb).tobytes()` sería más eficiente.
-- El chunking por headings no detecta cláusulas numeradas sin `#`.
-- La UI no usa el mockup completo; es una versión funcional con las mismas clases.
-- `test_ui.py::test_delete_ok` borra `data/index.db`; re-ingestar con `make demo` después de correr tests.
+```bash
+cd projects/agente-local-amigo
+uv sync
+uv run python -m src.agent.demo_ingest
+uv run uvicorn src.agent.ui:app --port 8000
+```
