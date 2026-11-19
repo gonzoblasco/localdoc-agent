@@ -27,7 +27,9 @@ The hard part is not retrieval. The hard part is **not lying**.
 valid, invalid = verify_citations(citations, chunks_by_id)
 ```
 
-A citation is valid only if its `quote` is a substring of the chunk after whitespace normalization. If the model invents a quote, it fails, the model is asked once more, and if it fails again the response becomes a refusal.
+A citation is valid only if its `quote` is a substring of the chunk after normalization. The normalizer handles whitespace, NFKC ligatures (`fi`), smart quotes, soft hyphens, NBSP and words hyphenated across a line break. If the model invents a quote, it fails, the model is asked once more, and if it fails again the response becomes a refusal.
+
+The quote check alone proves the text exists. It does not prove the text supports the answer. A second deterministic check extracts dates, amounts, percentages and clause numbers from the answer and requires each one to appear in at least one valid quote. Values produced by the deterministic calculator are exempt, because a sum of two cited totals does not appear literally in either one.
 
 This is not another LLM checking the first one. It is string containment, and it can be reproduced by anyone with the database.
 
