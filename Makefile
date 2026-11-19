@@ -4,7 +4,7 @@ install:
 	uv sync
 
 run:
-	uv run uvicorn src.agent.ui:app --reload --port 8000
+	uv run python -m src.agent.serve
 
 demo: demo-ingest demo-search
 

@@ -9,7 +9,7 @@ if ! command -v uv >/dev/null 2>&1; then
 fi
 
 uv sync
-uv run uvicorn src.agent.ui:app --port 8000 &
+uv run python -m src.agent.serve &
 sleep 2
 open http://127.0.0.1:8000
 wait

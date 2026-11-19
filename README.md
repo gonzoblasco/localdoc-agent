@@ -62,6 +62,21 @@ Ollama's published prices (2026-11-19, per 1M tokens):
 
 `deepseek-v4.1-flash` is a 763B model and costs roughly twice as much on input and three times as much on output. It stays available in the selector for the cases where the smaller cloud model is not enough.
 
+## The privacy claim is tested, not asserted
+
+"Nothing leaves this machine" used to be demonstrated once, with `lsof` and the Wi-Fi off. That is an experiment, not a guarantee: it proves what happened at 3pm on one laptop.
+
+It is now four checks in `tests/test_privacy.py`:
+
+1. **A socket audit hook.** `tests/privacy_probe.py` runs the real code paths in a subprocess under `sys.addaudithook` and records every `socket.connect`, `socket.getaddrinfo` and `socket.gethostbyname` whose target is not loopback. DNS counts: resolving a name is already traffic.
+2. **A positive control.** `test_probe_detects_a_simulated_leak` deliberately connects to `example.com` and fails if the hook does *not* catch it. Without this, a broken hook would pass every other test in the file while certifying nothing.
+3. **A bind guard.** `make run` goes through `src/agent/serve.py`, which refuses `--host 0.0.0.0` with exit code 2 instead of quietly accepting a copy-pasted command line.
+4. **A delete that deletes.** `POST /delete` removes the database, its `-wal`/`-shm` sidecars, `output/`, and — the real leak — the uploaded originals in `data/private/`.
+
+Run only these: `uv run pytest -q tests/test_privacy.py`
+
+**What it does not cover, stated plainly.** The hook lives inside the Python process. A subprocess is invisible to it, and so is the Ollama daemon: when a requested model is not downloaded, *Ollama* fetches it from the registry, outside anything Python can audit. That is why local models are a Quickstart prerequisite instead of a first-run download, and why cloud mode requires explicit consent.
+
 ## Quickstart
 
 ```bash
@@ -114,6 +129,7 @@ This section exists because the first version was not good, and the failures are
 - **~50 s per answer** on an Apple Silicon Mac mini with a 12B model. Correct, not fast.
 - **The eval is small and authored by the same person who wrote the system.** It is honest about the 18 questions it asks, not a benchmark.
 - **No multi-user, no server, no sync.** It is a local tool.
+- **The privacy test cannot see subprocesses.** It audits Python sockets; the Ollama daemon pulling a missing model happens in another process. The test proves the app's own code stays on loopback, not that every dependency behaves.
 
 ## Repository layout
 

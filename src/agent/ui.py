@@ -16,6 +16,7 @@ from . import db
 from .ingest import ingest_file
 from .models import CLOUD_MODEL, DEEPSEEK_CLOUD_MODEL, LOCAL_MODEL, model_mode
 from .retrieve import get_chunk
+from .wipe import wipe_state
 
 BASE = Path(__file__).resolve().parents[2]
 DATA = BASE / "data"
@@ -117,12 +118,8 @@ async def source(chunk_id: int):
 
 @app.post("/delete")
 async def delete():
-    if DB_PATH.exists():
-        DB_PATH.unlink()
-    if OUTPUT.exists():
-        for p in OUTPUT.iterdir():
-            if p.is_file():
-                p.unlink()
+    """Remove every copy of the user's documents, not just the index."""
+    wipe_state(DB_PATH, OUTPUT, PRIVATE)
     return Response(status_code=204, headers={"HX-Redirect": "/"})
 
 
