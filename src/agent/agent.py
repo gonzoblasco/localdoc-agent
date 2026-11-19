@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from typing import Any, Dict, List
 
 import ollama
@@ -24,6 +25,15 @@ _SYSTEM = (
     "Devolvé JSON con: answer (string), citations (lista de {chunk_id, quote}), confidence (0-1). "
     "Cada quote debe ser una copia textual exacta del fragmento citado."
 )
+
+
+def _parse_json(content: str) -> Dict[str, Any]:
+    """Ollama cloud models may wrap JSON in a markdown fence."""
+    text = (content or "").strip()
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:json)?\s*", "", text)
+        text = re.sub(r"\s*```$", "", text)
+    return json.loads(text)
 
 
 def _context(chunks: List[Dict[str, Any]]) -> str:
@@ -113,7 +123,7 @@ def answer_question(
             kwargs["options"] = {"num_ctx": NUM_CTX}
         resp = ollama.chat(**kwargs)
         content = resp["message"]["content"]
-        return json.loads(content)
+        return _parse_json(content)
 
     chunks_by_id = {c["chunk_id"]: c["text"] for c in chunks}
 

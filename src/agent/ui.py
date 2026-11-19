@@ -14,7 +14,7 @@ from fastapi.templating import Jinja2Templates
 from . import agent as agent_mod
 from . import db
 from .ingest import ingest_file
-from .models import CLOUD_MODEL, LOCAL_MODEL, model_mode
+from .models import CLOUD_MODEL, DEEPSEEK_CLOUD_MODEL, LOCAL_MODEL, model_mode
 from .retrieve import get_chunk
 
 BASE = Path(__file__).resolve().parents[2]
@@ -48,6 +48,7 @@ async def index(request: Request):
             "model_mode": model_mode(agent_mod.MODEL),
             "local_model": LOCAL_MODEL,
             "cloud_model": CLOUD_MODEL,
+            "deepseek_model": DEEPSEEK_CLOUD_MODEL,
         }
     )
     return HTMLResponse(html)

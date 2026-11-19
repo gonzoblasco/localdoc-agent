@@ -1,7 +1,7 @@
 import json
 from unittest.mock import patch
 
-from agent.agent import answer_question
+from agent.agent import _parse_json, answer_question
 from agent.models import model_mode
 
 CHUNKS = [
@@ -92,3 +92,8 @@ def test_model_mode():
     assert model_mode("gemma4:12b-mlx") == "local"
     assert model_mode("deepseek-v4.1-flash:cloud") == "cloud"
     assert model_mode("") == "local"
+
+
+def test_parse_fenced_json():
+    assert _parse_json('```json\n{"answer": "ok"}\n```') == {"answer": "ok"}
+    assert _parse_json('{"answer": "ok"}') == {"answer": "ok"}

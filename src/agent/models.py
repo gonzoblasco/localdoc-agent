@@ -5,7 +5,10 @@ from __future__ import annotations
 import os
 
 LOCAL_MODEL = os.environ.get("NIDO_LOCAL_MODEL", "gemma4:12b-mlx")
-CLOUD_MODEL = os.environ.get("NIDO_CLOUD_MODEL", "deepseek-v4.1-flash:cloud")
+CLOUD_MODEL = os.environ.get("NIDO_CLOUD_MODEL", "gemma4:cloud")
+DEEPSEEK_CLOUD_MODEL = os.environ.get(
+    "NIDO_DEEPSEEK_CLOUD_MODEL", "deepseek-v4.1-flash:cloud"
+)
 DEFAULT_MODEL = os.environ.get("NIDO_MODEL", LOCAL_MODEL)
 
 

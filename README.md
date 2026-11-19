@@ -47,6 +47,21 @@ This is not another LLM checking the first one. It is string containment, and it
 | Arithmetic | `calc.py` (deterministic) | Because a 12B model cannot add two numbers reliably |
 | UI | FastAPI + HTMX | One screen, no build step |
 
+## Local or cloud
+
+The default is local: `gemma4:12b-mlx`, no network, no account.
+
+The UI also offers `gemma4:cloud`, which runs on Ollama Cloud and requires an explicit consent checkbox. With a cloud model, the question and the retrieved chunks leave the machine; the zero-sockets claim only applies to the local mode.
+
+Ollama's published prices (2026-11-19, per 1M tokens):
+
+| Model | Input | Cached input | Output |
+|---|---:|---:|---:|
+| `gemma4:cloud` | $0.14 | $0.05 | $0.40 |
+| `deepseek-v4.1-flash:cloud` | $0.30 peak / $0.15 off-peak | $0.006 / $0.003 | $1.20 / $0.60 |
+
+`deepseek-v4.1-flash` is a 763B model and costs roughly twice as much on input and three times as much on output. It stays available in the selector for the cases where the smaller cloud model is not enough.
+
 ## Quickstart
 
 ```bash

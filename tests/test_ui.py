@@ -9,6 +9,7 @@ def test_index_ok():
     r = client.get("/")
     assert r.status_code == 200
     assert "Nido" in r.text
+    assert "gemma4:cloud" in r.text
     assert "deepseek-v4.1-flash:cloud" in r.text
     assert "cloud_consent" in r.text
 

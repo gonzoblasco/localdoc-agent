@@ -92,6 +92,7 @@
               <select id="model" name="model">
                 <option value="{{ local_model }}" {% if model_name == local_model %}selected{% endif %}>Local · {{ local_model }}</option>
                 <option value="{{ cloud_model }}" {% if model_name == cloud_model %}selected{% endif %}>Cloud · {{ cloud_model }}</option>
+                <option value="{{ deepseek_model }}" {% if model_name == deepseek_model %}selected{% endif %}>Cloud · {{ deepseek_model }} (más caro)</option>
               </select>
               <label class="consent"><input type="checkbox" name="cloud_consent" value="true"> Acepto enviar esta consulta a Ollama Cloud</label>
             </div>
