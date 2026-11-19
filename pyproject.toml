@@ -1,7 +1,7 @@
 [project]
-name = "agente-local-amigo"
+name = "localdoc-agent"
 version = "0.1.0"
-description = "Agente local y privado para un amigo real"
+description = "Local-first document Q&A with citations verified in code"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115",
