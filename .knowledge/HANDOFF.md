@@ -1,28 +1,44 @@
-# HANDOFF — localdoc-agent (antes agente-local-amigo)
+# HANDOFF - agente-local-amigo
 
-## Estado: MVP cerrado, repo publico
+**Fecha:** 2026-11-19 00:02 GMT-3
+**Proyecto:** agente-local-amigo
+**Branch:** main
+**Repo:** https://github.com/gonzoblasco/localdoc-agent
+**Autor:** Kanam (CORE)
 
-- Repo: https://github.com/gonzoblasco/localdoc-agent (MIT, publico)
-- Programa `agente-local-lucia`: 7/7 pasos cerrados. 10 tests verdes.
-- Eval 18/18 (P50 49.5 s) con gemma4:12b-mlx; gemma3:4b 4/18 en 6.8 s; qwen3.5:9b no completo.
+> HANDOFF generado en el cierre de sesion (2026-11-19). Es el punto de entrada para continuar este proyecto. El informe detallado de la sesion vive en `memory/2026-11-19.md`.
 
-## Verificado
+---
 
-- Hybrid retrieval real (BM25 + `vec0` KNN + RRF).
-- Citas por substring (`verify.py`); q07 resuelto con calculo determinista (`calc.py`).
-- Flujo UI completo: ingesta PDF real, consulta con cita, draft, delete (204).
+## Que se hizo en esta sesion
 
-## Deuda abierta
+Implementación y push del fix del verificador en localdoc-agent: normalización de artefactos de extracción y chequeo determinístico de literales del answer, con intentos/verification en el eval. Se corrigió el ejemplo de cláusula 4.2 en el artículo bilingüe del portfolio (ahora cláusula 2, que existe en el corpus demo) y se publicó.
 
-1. ~50 s por respuesta con el 12B: medir en el hardware final.
-2. PDFs escaneados fuera de alcance (sin OCR).
-3. Eval pequena y auto-escrita: no es un benchmark independiente.
+## Estado actual
 
-## Como retomar
+19/19 tests verdes; commits localdoc-agent 764b214 + 8586563; sitio 8a5f983 live.
 
-```bash
-cd projects/agente-local-amigo
-uv sync
-uv run python -m src.agent.demo_ingest
-uv run uvicorn src.agent.ui:app --port 8000
+## Proximos pasos
+
+1. Rerun del eval con el 12B cuando esté instalado para medir first-try/retry; bio de GitHub; dev.to API key.
+
+## Decisiones y contexto que no debe perderse
+
+- El chequeo de literales se salta en deterministic_calc y canonicaliza fechas/montos. No se inventó el split de reintentos: el eval ahora lo registra.
+
+## Archivos tocados
+
 ```
+docs/CHANGELOG.md
+docs/archive/CHANGELOG-archive.md
+```
+
+## Como continuar
+
+1. Leer este HANDOFF (estado actual + proximos pasos).
+2. Leer `memory/2026-11-19.md` para el informe completo de la sesion.
+3. Verificar el estado real antes de actuar (git, tests, la DB).
+
+---
+
+*Generado por `scripts/session-handoff.py` (session-lifecycle). Se regenera en cada cierre de sesion.*
