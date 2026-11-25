@@ -53,3 +53,12 @@ Construir un agente local, open-source, que le permita a Lucía (fotógrafa free
 1. Confirmar hardware de Lucía.
 2. Confirmar formato exacto de los contratos (PDF texto vs. escaneado).
 3. Confirmar si usa Obsidian y en qué carpeta.
+
+
+## Migrado del HANDOFF (projects/localdoc-agent/.knowledge/HANDOFF.md)
+
+Contenido propio del HANDOFF que vivia solo alla. El HANDOFF ahora es
+el estado de la ultima sesion (ADR-122).
+
+- Rerun del eval con el 12B cuando esté instalado para medir first-try/retry; bio de GitHub; dev.to API key.
+- El chequeo de literales se salta en deterministic_calc y canonicaliza fechas/montos. No se inventó el split de reintentos: el eval ahora lo registra.
